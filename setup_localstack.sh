@@ -5,9 +5,12 @@ aws configure set aws_access_key_id test --profile localstack
 aws configure set aws_secret_access_key test --profile localstack
 aws configure set region us-east-1 --profile localstack
 
+
+
 # Set up S3 bucket
 echo "Creating S3 bucket..."
-awslocal s3 mb s3://product-images
+aws --endpoint-url=http://localhost:4566 s3 mb s3://product-images
+
 
 # Verify S3 bucket
 echo "Listing S3 buckets..."
@@ -36,43 +39,50 @@ echo "Creating Lambda function..."
 #     --endpoint-url $AWS_ENDPOINT
 
 # Create Lambda Function with correct ZIP file
-aws lambda create-function \
+
+# Check if the Lambda function already exists
+if ! awslocal --endpoint-url=$AWS_ENDPOINT lambda get-function --function-name CheckProductStock 2>/dev/null; then
+  echo "Creating Lambda function..."
+  
+  # Lambda function creation command
+  awslocal lambda create-function \
     --function-name CheckProductStock \
     --runtime python3.9 \
     --handler ses.lambda_handler \
+    --zip-file fileb://ses.zip \
     --role arn:aws:iam::000000000000:role/lambda-role \
-    --zip-file fileb://app/services/ses.zip \
-    --endpoint-url $AWS_ENDPOINT
+    # --function-code "fileb://app/services/ses.py" \
+    # --endpoint-url $AWS_ENDPOINT \
+else
+  echo "Lambda function 'CheckProductStock' already exists."
+fi
 
 
 # Create EventBridge Rule for scheduling Lambda execution every minute
 echo "Creating EventBridge Rule..."
-aws events put-rule \
+awslocal events put-rule \
     --schedule-expression "rate(1 minute)" \
     --name CheckProductStockSchedule \
-    --endpoint-url $AWS_ENDPOINT
 
 # Add Lambda as a target for the EventBridge Rule
 echo "Adding Lambda target to EventBridge Rule..."
-aws events put-targets \
+awslocal events put-targets \
     --rule CheckProductStockSchedule \
-    --targets "Id"="1","Arn"="arn:aws:lambda:us-east-1:000000000000:function:CheckProductStock" \
-    --endpoint-url $AWS_ENDPOINT
+    --targets '[{"Id":"1","Arn":"arn:aws:lambda:us-east-1:000000000000:function:CheckProductStock"}]' \
+
 
 # Grant EventBridge permission to invoke Lambda
 echo "Granting permissions to EventBridge to invoke Lambda..."
-aws lambda add-permission \
+awslocal lambda add-permission \
     --function-name CheckProductStock \
     --statement-id AllowEventBridgeInvocation \
     --action "lambda:InvokeFunction" \
     --principal events.amazonaws.com \
     --source-arn "arn:aws:events:us-east-1:000000000000:rule/CheckProductStockSchedule" \
-    --endpoint-url $AWS_ENDPOINT
 
 # Verify SES Email identity (to receive low stock notifications)
 echo "Verifying SES Email Identity..."
-aws ses verify-email-identity \
+awslocal ses verify-email-identity \
     --email-address no-reply@example.com \
-    --endpoint-url $AWS_ENDPOINT
 
 echo "LocalStack setup and Lambda function deployment complete!"

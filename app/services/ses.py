@@ -15,7 +15,15 @@ def send_low_stock_email(product_name):
         },
     )
 
+# app/services/ses.py
 def lambda_handler(event, context):
+    # Your Lambda code here
+    return {
+        'statusCode': 200,
+        'body': 'Success'
+    }
+
+# def lambda_handler(event, context):
 
     # retrieve products with low stock from the database
     # Mock database or data source of products
