@@ -24,6 +24,5 @@ app.include_router(product.router)
 # create get method
 @app.get("/")
 def read_root():
-    # yocoso 
-    return {"Yocoso": "Welcome to Yocoso"}
+    return {"Hello": "Hello World"}
 

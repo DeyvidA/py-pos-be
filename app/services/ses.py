@@ -26,7 +26,6 @@ def send_low_stock_email(product_name):
 
 def lambda_handler(event, context):
     logger.info("Received event: %s", json.dumps(event, indent=2))
-    print("Received event: ", event)
     try:
         # Use requests to connect to the ngrok public URL
         response = requests.get(API_URL)
