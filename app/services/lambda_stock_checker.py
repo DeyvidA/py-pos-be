@@ -1,0 +1,1 @@
+from app.config.aws import lambda_client
