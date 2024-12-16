@@ -10,3 +10,6 @@ lambda_package
 ./lambda_package
 
 postgres_data
+
+lambda_function.zip
+response.json
