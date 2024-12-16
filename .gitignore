@@ -5,3 +5,8 @@ __pycache__/
 .idea
 ./.venv
 .venv
+
+lambda_package
+./lambda_package
+
+postgres_data

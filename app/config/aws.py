@@ -1,7 +1,7 @@
 import boto3
 
 AWS_REGION = "us-east-1"
-LOCALSTACK_ENDPOINT = "http://localhost:4566"
+LOCALSTACK_ENDPOINT = "https://localhost.localstack.cloud:4566"
 
 # S3 Client
 s3_client = boto3.client(

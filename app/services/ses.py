@@ -1,5 +1,14 @@
 from app.config.aws import ses_client
 import json
+import requests
+
+import logging
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+
+# Use the ngrok public URL for the API
+API_URL = "https://4d7e-2803-2d60-1121-5f-630c-a41e-e54b-b34.ngrok-free.app/products/low-stock"
 
 SENDER_EMAIL = "no-reply@example.com"
 
@@ -8,40 +17,40 @@ def send_low_stock_email(product_name):
     body = f"The stock for {product_name} is critically low!"
     ses_client.send_email(
         Source=SENDER_EMAIL,
-        Destination={"ToAddresses": ["admin@example.com"]},
+        Destination={"ToAddresses": ["test@example.com"]},
         Message={
             "Subject": {"Data": subject},
             "Body": {"Text": {"Data": body}},
         },
     )
 
-# app/services/ses.py
 def lambda_handler(event, context):
-    # Your Lambda code here
-    return {
-        'statusCode': 200,
-        'body': 'Success'
-    }
+    logger.info("Received event: %s", json.dumps(event, indent=2))
+    print("Received event: ", event)
+    try:
+        # Use requests to connect to the ngrok public URL
+        response = requests.get(API_URL)
 
-# def lambda_handler(event, context):
+        if response.status_code == 200:
+            # Parse the response (assuming it's a JSON list of products)
+            products = response.json()
 
-    # retrieve products with low stock from the database
-    # Mock database or data source of products
-    products = [
-        {"id": 1, "name": "Product 1", "stock_quantity": 5, "price": 20.0},
-        {"id": 2, "name": "Product 2", "stock_quantity": 2, "price": 10.0},
-        {"id": 3, "name": "Product 3", "stock_quantity": 0, "price": 15.0},
-        {"id": 4, "name": "Product 4", "stock_quantity": 3, "price": 50.0},
-    ]
+            # Loop through the products and send emails for each one
+            for product in products:
+                send_low_stock_email(product['name'])
 
-    for product in products:
-        if product["stock_quantity"] <= 3:
-            subject = f"Low stock alert for {product['name']}"
-            body = f"The stock for {product['name']} has dropped to {product['stock_quantity']}. Please restock soon."
-            to_address = "test@example.com"  # Replace with actual recipient
-            send_low_stock_email(subject, body, to_address)
-    
-    return {
-        "statusCode": 200,
-        "body": json.dumps("Stock check completed and emails sent if necessary."),
-    }
+            return {
+                'statusCode': 200,
+                'body': 'Success'
+            }
+        else:
+            # Handle the case where the API request fails
+            logger.error(f"Failed to retrieve low stock products: {response.status_code} - {response.text}")
+            return {
+                'statusCode': 500,
+                'body': 'Failed to retrieve low stock products'
+            }
+
+    except Exception as e:
+        logger.error(f"Error occurred: {str(e)}")
+        raise

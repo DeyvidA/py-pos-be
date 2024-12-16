@@ -4,7 +4,6 @@ from app.schemas.product import ProductCreate, ProductUpdate
 from app.models.product import Product
 from app.config.db import get_db
 from app.services.s3 import upload_image_to_s3
-from app.services.ses import send_low_stock_email
 
 router = APIRouter()
 
@@ -27,6 +26,14 @@ def create_product(
 @router.get("/products")
 def get_all_products(db: Session = Depends(get_db)):
     return db.query(Product).all()
+
+
+# GET PRODUCTS WITH LOW STOCK
+@router.get("/products/low-stock")
+def get_low_stock_products(db: Session = Depends(get_db)):
+    return db.query(Product).filter(Product.stock_quantity < 3).all()
+
+    
 
 
 @router.get("/products/{id}")
