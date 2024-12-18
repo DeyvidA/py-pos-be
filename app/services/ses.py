@@ -8,7 +8,7 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 # Use the ngrok public URL for the API
-API_URL = "https://4d7e-2803-2d60-1121-5f-630c-a41e-e54b-b34.ngrok-free.app/products/low-stock"
+API_URL = "https://6311-2803-2d60-1121-5f-22c1-5396-81ea-2086.ngrok-free.app/products/low-stock"
 
 SENDER_EMAIL = "no-reply@example.com"
 

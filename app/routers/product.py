@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile
+from typing import Optional
 from sqlalchemy.orm import Session
 from app.schemas.product import ProductCreate, ProductUpdate
 from app.models.product import Product
@@ -7,25 +8,26 @@ from app.services.s3 import upload_image_to_s3
 
 router = APIRouter()
 
-@router.post("/products", response_model=ProductCreate)
-def create_product(
-    product: ProductCreate, db: Session = Depends(get_db), image: UploadFile = None
-):
-    if image:
-        image_url = upload_image_to_s3(image)
-    else:
-        image_url = None
+# @router.post("/products", response_model=ProductCreate)
+# def create_product(
+#     product: ProductCreate,  # Expect fields directly in the body
+#     db: Session = Depends(get_db),
+#     image: Optional[UploadFile] = None
+# ):
+#     # Handle image upload
+#     image_url = upload_image_to_s3(image) if image else None
 
-    db_product = Product(**product.dict(), image_url=image_url)
-    db.add(db_product)
-    db.commit()
-    db.refresh(db_product)
-    return db_product
+#     # Create product in the database
+#     db_product = Product(**product.dict(), image_url=image_url)
+#     db.add(db_product)
+#     db.commit()
+#     db.refresh(db_product)
 
+#     return db_product
 
-@router.get("/products")
-def get_all_products(db: Session = Depends(get_db)):
-    return db.query(Product).all()
+# @router.get("/products")
+# def get_all_products(db: Session = Depends(get_db)):
+#     return db.query(Product).all()
 
 
 # GET PRODUCTS WITH LOW STOCK
