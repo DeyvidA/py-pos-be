@@ -24,5 +24,6 @@ class ProductResponse(ProductBase):
     id: int = Field(..., example=1)
     image_url: Optional[str] = Field(None, example="https://bucket.s3.amazonaws.com/image.jpg")
 
-    class Config:
-        orm_mode = True
+    model_config = {
+        "from_attributes": True  # Replaces `orm_mode = True`
+    }
