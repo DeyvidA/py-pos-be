@@ -1,14 +1,20 @@
-from app.config.aws import ses_client
+import os
 import json
-import requests
-
 import logging
+import requests
+from app.config.aws import ses_client
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+ENV_API_URL = os.getenv("API_URL")
+
 # Use the ngrok public URL for the API
-API_URL = "https://6311-2803-2d60-1121-5f-22c1-5396-81ea-2086.ngrok-free.app/products/low-stock"
+API_URL = "https://a8d0-2803-2d60-1121-5f-340b-50c-fd3e-381d.ngrok-free.app/products/low-stock"
+# API_URL = f"{ENV_API_URL}/products/low-stock"
 
 SENDER_EMAIL = "no-reply@example.com"
 

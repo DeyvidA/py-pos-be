@@ -10,7 +10,7 @@ fi
 # Required packages: boto3, requests, sqlalchemy, psycopg2, psycopg2-binary
 mkdir -p lambda
 echo "Installing required packages into the lambda folder..."
-pip install -t lambda boto3 requests sqlalchemy psycopg2 psycopg2-binary
+pip install -t lambda boto3 requests sqlalchemy psycopg2 psycopg2-binary python-dotenv
 
 # Copy the necessary files into the Lambda folder
 # Files: app/services/ses.py and app/config/aws.py
