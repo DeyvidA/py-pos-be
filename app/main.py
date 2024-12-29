@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException, UploadFile
+from fastapi import FastAPI, Depends, HTTPException, UploadFile, Form
 from app.config.db import Base, engine, get_db
 from app.routers import product
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,12 +29,7 @@ def read_root():
     return {"Hello": "Hello World"}
 
 @app.post("/products")
-def create_product(product: ProductCreate, db=Depends(get_db), image: UploadFile = None):
-    
-# Handle image upload
-
-    image_url = upload_image_to_s3(image) if image else None
-
+def create_product(product: ProductCreate, db=Depends(get_db)):
     # Create product in the database
     db_product = Product(**product.dict())
     db.add(db_product)
